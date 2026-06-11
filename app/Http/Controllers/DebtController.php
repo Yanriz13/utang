@@ -38,6 +38,7 @@ $monthlyReports = MonthlyIncome::where('user_id', $userId)
         $totalPayment = $payments->sum('amount_paid');
 
         return [
+            'id' => $income->id,
             'month' => $income->month,
             'income' => $income->income,
             'payment' => $totalPayment,

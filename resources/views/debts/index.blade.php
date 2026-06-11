@@ -78,13 +78,14 @@
             <p class="text-xs text-slate-500 mt-0.5">Sisa uang setelah pembayaran utang</p>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[760px] text-sm">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Bulan</th>
                         <th class="text-right text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Gaji</th>
                         <th class="text-right text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Total Bayar</th>
                         <th class="text-right text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Sisa</th>
+                        <th class="text-center text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -94,6 +95,70 @@
                         <td class="px-5 py-3 text-right text-slate-600">Rp {{ number_format($report['income']) }}</td>
                         <td class="px-5 py-3 text-right font-medium text-red-500">Rp {{ number_format($report['payment']) }}</td>
                         <td class="px-5 py-3 text-right font-semibold text-green-700">Rp {{ number_format($report['remaining']) }}</td>
+                        <td class="px-5 py-3">
+                            <div class="flex items-center justify-center gap-2">
+                                <button
+                                    type="button"
+                                    onclick="toggleIncomeEditForm('income-form-{{ $report['id'] }}')"
+                                    class="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition"
+                                >
+                                    <i class="ti ti-edit text-sm"></i> Edit
+                                </button>
+                                <form action="/monthly-income/{{ $report['id'] }}" method="POST" onsubmit="return confirm('Hapus data pemasukan bulan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button
+                                        type="submit"
+                                        class="inline-flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition"
+                                    >
+                                        <i class="ti ti-trash text-sm"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr id="income-form-{{ $report['id'] }}" class="hidden bg-amber-50">
+                        <td colspan="5" class="px-5 py-3">
+                            <form action="/monthly-income/{{ $report['id'] }}" method="POST" class="flex flex-wrap items-center gap-2">
+                                @csrf
+                                @method('PUT')
+
+                                <span class="text-xs sm:text-sm font-medium text-amber-700 w-full sm:w-auto">Edit pemasukan</span>
+
+                                <input
+                                    type="month"
+                                    name="month"
+                                    required
+                                    value="{{ $report['month'] }}"
+                                    class="w-full sm:w-auto border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                                >
+
+                                <input
+                                    type="number"
+                                    name="income"
+                                    required
+                                    min="0"
+                                    value="{{ $report['income'] }}"
+                                    class="w-full sm:w-48 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="inline-flex w-full sm:w-auto justify-center items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+                                >
+                                    <i class="ti ti-check text-base"></i> Simpan
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onclick="toggleIncomeEditForm('income-form-{{ $report['id'] }}')"
+                                    class="text-xs text-slate-500 hover:text-slate-700 underline w-full sm:w-auto text-left sm:text-center"
+                                >
+                                    Batal
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -353,6 +418,11 @@ function toggleForm(id) {
     row.classList.toggle('hidden');
     // Re-init supaya input rupiah di dalam form yang baru muncul langsung aktif
     setTimeout(initRupiahInputs, 10);
+}
+
+function toggleIncomeEditForm(id) {
+    const row = document.getElementById(id);
+    row.classList.toggle('hidden');
 }
 </script>
 @endsection

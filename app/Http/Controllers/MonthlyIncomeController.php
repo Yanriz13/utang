@@ -36,4 +36,29 @@ class MonthlyIncomeController extends Controller
 
         return back()->with('success', 'Pemasukan berhasil ditambahkan');
     }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'month' => ['required', 'string', 'max:20'],
+            'income' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $income = MonthlyIncome::where('user_id', auth()->id())->findOrFail($id);
+
+        $income->update([
+            'month' => $validated['month'],
+            'income' => $validated['income'],
+        ]);
+
+        return back()->with('success', 'Pemasukan berhasil diupdate');
+    }
+
+    public function destroy($id)
+    {
+        $income = MonthlyIncome::where('user_id', auth()->id())->findOrFail($id);
+        $income->delete();
+
+        return back()->with('success', 'Pemasukan berhasil dihapus');
+    }
 }
