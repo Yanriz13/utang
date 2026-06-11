@@ -15,7 +15,7 @@ class DebtPaymentController extends Controller
             'month_number' => 'required',
         ]);
 
-        $debt = Debt::findOrFail($id);
+        $debt = Debt::where('user_id', auth()->id())->findOrFail($id);
 
         $exists = DebtPayment::where('debt_id', $id)
             ->where('month_number', $request->month_number)
@@ -61,7 +61,9 @@ $payment->save();
 
     public function destroy($id)
     {
-        $payment = DebtPayment::findOrFail($id);
+        $payment = DebtPayment::whereHas('debt', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->findOrFail($id);
 
         $debt = $payment->debt;
 

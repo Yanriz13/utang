@@ -2,10 +2,10 @@
 
 @section('content')
 
-<div class="max-w-2xl mx-auto p-6">
+<div class="max-w-2xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
 
 <form action="/debts" method="POST"
-      class="bg-white shadow rounded-2xl p-6 space-y-4">
+       class="bg-white shadow rounded-2xl p-4 sm:p-6 space-y-4">
 
     @csrf
 
@@ -38,7 +38,7 @@
               placeholder="Deskripsi"
               class="w-full border p-3 rounded-xl"></textarea>
 
-    <button class="bg-indigo-600 text-white px-5 py-3 rounded-xl">
+       <button class="w-full sm:w-auto bg-indigo-600 text-white px-5 py-3 rounded-xl">
         Simpan
     </button>
 

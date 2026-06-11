@@ -9,7 +9,9 @@ class MonthlyIncomeController extends Controller
 {
     public function index()
     {
-        $incomes = MonthlyIncome::latest()->get();
+        $incomes = MonthlyIncome::where('user_id', auth()->id())
+            ->latest()
+            ->get();
 
         return view('income.index', compact('incomes'));
     }
@@ -21,9 +23,15 @@ class MonthlyIncomeController extends Controller
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'month' => ['required', 'string', 'max:20'],
+            'income' => ['required', 'numeric', 'min:0'],
+        ]);
+
         MonthlyIncome::create([
-            'month' => $request->month,
-            'income' => $request->income,
+            'user_id' => auth()->id(),
+            'month' => $validated['month'],
+            'income' => $validated['income'],
         ]);
 
         return back()->with('success', 'Pemasukan berhasil ditambahkan');

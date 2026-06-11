@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-5 px-4 py-6">
+<div class="max-w-5xl mx-auto space-y-5 px-2 sm:px-4 py-4 sm:py-6">
 
     {{-- TOP BAR --}}
     <div class="flex items-center justify-between flex-wrap gap-3">
@@ -10,9 +10,9 @@
             <p class="text-sm text-slate-500">Rekap keuangan bulanan</p>
         </div>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="flex w-full sm:w-auto flex-wrap gap-2">
             <a href="/export-excel"
-               class="inline-flex items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+               class="inline-flex w-full sm:w-auto justify-center items-center gap-2 bg-teal-700 hover:bg-teal-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                 <i class="ti ti-table-export text-base"></i>
                 Export Excel
             </a>
@@ -43,11 +43,11 @@
                 <p class="text-xs text-slate-500 mt-0.5">Tambahkan total penghasilan per bulan</p>
             </div>
             <form action="/monthly-income" method="POST"
-                  class="flex flex-wrap gap-2 items-center"
+                                    class="flex w-full sm:w-auto flex-wrap gap-2 items-center"
                   onsubmit="syncRupiahFields(this)">
                 @csrf
                 <input type="month" name="month" required
-                    class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                                        class="w-full sm:w-auto border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
 
                 {{-- Input tampilan (rupiah) --}}
                 <div class="relative">
@@ -55,15 +55,15 @@
                     <input type="text"
                         data-rupiah
                         placeholder="0"
-                        class="border border-slate-300 rounded-lg pl-8 pr-3 py-1.5 text-sm w-48
+                        class="w-full sm:w-48 border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-sm
                                focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 </div>
                 {{-- Hidden field yang dikirim ke server --}}
                 <input type="hidden" name="income">
 
                 <button type="submit"
-                    class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white
-                           text-sm font-medium px-4 py-1.5 rounded-lg transition">
+                      class="inline-flex w-full sm:w-auto justify-center items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white
+                          text-sm font-medium px-4 py-2 rounded-lg transition">
                     <i class="ti ti-device-floppy text-base"></i>
                     Simpan
                 </button>
@@ -102,13 +102,13 @@
     </div>
 
     {{-- DAFTAR UTANG --}}
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
         <div>
             <p class="text-sm font-semibold text-slate-800">Daftar Utang</p>
             <p class="text-xs text-slate-500 mt-0.5">{{ $debts->count() }} utang terdaftar</p>
         </div>
         <a href="/debts/create"
-           class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white
+           class="inline-flex w-full sm:w-auto justify-center items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white
                   text-sm font-medium px-4 py-2 rounded-lg transition">
             <i class="ti ti-plus text-base"></i>
             Tambah Utang
@@ -118,7 +118,7 @@
     {{-- TABEL UTANG --}}
     <div class="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="w-full min-w-[860px] text-sm">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="text-left text-xs font-medium text-slate-500 uppercase tracking-wide px-5 py-3">Nama Utang</th>
@@ -145,11 +145,11 @@
                             </span>
                         </td>
                         <td class="px-5 py-3">
-                            <div class="flex items-center justify-center gap-2">
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2">
                                 <button type="button"
                                     onclick="toggleForm('form-{{ $debt->id }}')"
                                     class="inline-flex items-center gap-1 bg-green-50 hover:bg-green-100 text-green-700
-                                           border border-green-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition">
+                                           border border-green-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition justify-center">
                                     <i class="ti ti-cash text-sm"></i> Bayar
                                 </button>
                                 <form action="/debts/{{ $debt->id }}" method="POST"
@@ -158,7 +158,7 @@
                                     @method('DELETE')
                                     <button type="submit"
                                         class="inline-flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600
-                                               border border-red-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition">
+                                               border border-red-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition justify-center w-full">
                                         <i class="ti ti-trash text-sm"></i> Hapus
                                     </button>
                                 </form>
@@ -173,25 +173,25 @@
                                   class="flex flex-wrap items-center gap-3"
                                   onsubmit="syncRupiahFields(this)">
                                 @csrf
-                                <span class="text-xs font-medium text-indigo-700">
+                                <span class="text-xs sm:text-sm font-medium text-indigo-700 w-full sm:w-auto">
                                     Bayar cicilan — <strong>{{ $debt->title }}</strong>
                                 </span>
                                 <input type="month" name="payment_month" required
-                                    class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm
+                                    class="w-full sm:w-auto border border-slate-300 rounded-lg px-3 py-2 text-sm
                                            focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white">
                                 <input type="number" name="month_number" placeholder="Cicilan ke-" required min="1"
-                                    class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm w-32
+                                    class="w-full sm:w-32 border border-slate-300 rounded-lg px-3 py-2 text-sm
                                            focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white">
 
 
 
                                 <button type="submit"
-                                    class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
-                                           text-white text-sm font-medium px-4 py-1.5 rounded-lg transition">
+                                    class="inline-flex w-full sm:w-auto justify-center items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700
+                                           text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                                     <i class="ti ti-check text-base"></i> Konfirmasi Bayar
                                 </button>
                                 <button type="button" onclick="toggleForm('form-{{ $debt->id }}')"
-                                    class="text-xs text-slate-500 hover:text-slate-700 underline">
+                                    class="text-xs text-slate-500 hover:text-slate-700 underline w-full sm:w-auto text-left sm:text-center">
                                     Batal
                                 </button>
                             </form>
@@ -206,7 +206,7 @@
                                 Cicilan yang sudah dibayar
                             </p>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-xs">
+                                <table class="w-full min-w-[520px] text-xs">
                                     <thead>
                                         <tr class="text-slate-400">
                                             <th class="text-left font-medium pb-1.5 pr-4">Cicilan ke-</th>

@@ -12,21 +12,28 @@ class DebtController extends Controller
 {
     public function index()
     {
-        $debts = Debt::with('payments')->latest()->get();
+        $userId = auth()->id();
 
-        $monthlyIncome = MonthlyIncome::sum('income');
+        $debts = Debt::with('payments')
+            ->where('user_id', $userId)
+            ->latest()
+            ->get();
 
-        $monthlyDebt = Debt::sum('monthly_payment');
+        $monthlyIncome = MonthlyIncome::where('user_id', $userId)->sum('income');
+
+        $monthlyDebt = Debt::where('user_id', $userId)->sum('monthly_payment');
 
         $remainingMoney = $monthlyIncome - $monthlyDebt;
-$monthlyReports = MonthlyIncome::latest()
+$monthlyReports = MonthlyIncome::where('user_id', $userId)
+    ->latest()
     ->get()
     ->map(function ($income) {
 
-       $payments = \App\Models\DebtPayment::where(
-    'payment_month',
-    (string) $income->month
-)->get();
+       $payments = DebtPayment::where('payment_month', (string) $income->month)
+        ->whereHas('debt', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+        ->get();
 
         $totalPayment = $payments->sum('amount_paid');
 
@@ -54,21 +61,30 @@ $monthlyReports = MonthlyIncome::latest()
 
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'total_amount' => ['required', 'numeric', 'min:1'],
+            'total_month' => ['required', 'integer', 'min:1'],
+            'start_date' => ['required', 'date'],
+            'description' => ['nullable', 'string'],
+        ]);
+
         Debt::create([
-            'title' => $request->title,
-            'total_amount' => $request->total_amount,
-            'total_month' => $request->total_month,
+            'user_id' => auth()->id(),
+            'title' => $validated['title'],
+            'total_amount' => $validated['total_amount'],
+            'total_month' => $validated['total_month'],
             'monthly_payment' =>
-                $request->total_amount / $request->total_month,
-            'start_date' => $request->start_date,
-            'description' => $request->description,
+                $validated['total_amount'] / $validated['total_month'],
+            'start_date' => $validated['start_date'],
+            'description' => $validated['description'] ?? null,
         ]);
 
         return redirect('/')->with('success', 'Utang berhasil dibuat');
     }
     public function destroy($id)
 {
-    $debt = Debt::findOrFail($id);
+        $debt = Debt::where('user_id', auth()->id())->findOrFail($id);
 
     $debt->delete();
 
@@ -76,7 +92,7 @@ $monthlyReports = MonthlyIncome::latest()
 }
 public function pay(Request $request, $id)
 {
-    $debt = Debt::findOrFail($id);
+    $debt = Debt::where('user_id', auth()->id())->findOrFail($id);
 
     foreach ($request->payments as $payment)
     {
@@ -92,13 +108,17 @@ public function pay(Request $request, $id)
 }
 public function exportExcel()
 {
-    $debts = Debt::with('payments')->get();
+    $userId = auth()->id();
 
-    $monthlyIncome = MonthlyIncome::sum('income');
-    $monthlyDebt = Debt::sum('monthly_payment');
+    $debts = Debt::with('payments')->where('user_id', $userId)->get();
+
+    $monthlyIncome = MonthlyIncome::where('user_id', $userId)->sum('income');
+    $monthlyDebt = Debt::where('user_id', $userId)->sum('monthly_payment');
     $remainingMoney = $monthlyIncome - $monthlyDebt;
 
-    $monthlyReports = MonthlyIncome::all()->map(function ($item) use ($monthlyDebt) {
+    $monthlyReports = MonthlyIncome::where('user_id', $userId)
+    ->get()
+    ->map(function ($item) use ($monthlyDebt) {
         return [
             'month' => $item->month,
             'income' => $item->income,
@@ -119,7 +139,9 @@ public function exportExcel()
 }
 public function deletePayment($id)
 {
-    $payment = DebtPayment::findOrFail($id);
+    $payment = DebtPayment::whereHas('debt', function ($query) {
+        $query->where('user_id', auth()->id());
+    })->findOrFail($id);
 
     $payment->delete();
 
@@ -130,10 +152,11 @@ public function storeMultiple(Request $request)
     foreach ($request->debts as $item)
     {
         Debt::create([
+            'user_id' => auth()->id(),
             'title' => $item['title'],
             'total_amount' => $item['total_amount'],
             'monthly_payment' => $item['monthly_payment'],
-            'status' => 'Belum Lunas'
+            'status' => 'belum_lunas'
         ]);
     }
 
@@ -143,7 +166,9 @@ public function bulkDelete(Request $request)
 {
     if ($request->debt_ids)
     {
-        Debt::whereIn('id', $request->debt_ids)->delete();
+        Debt::where('user_id', auth()->id())
+            ->whereIn('id', $request->debt_ids)
+            ->delete();
     }
 
     return back()->with('success', 'Utang terpilih berhasil dihapus');
@@ -153,7 +178,9 @@ public function bulkDeletePayments(Request $request)
 {
     if ($request->payment_ids)
     {
-        DebtPayment::whereIn('id', $request->payment_ids)->delete();
+        DebtPayment::whereHas('debt', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->whereIn('id', $request->payment_ids)->delete();
     }
 
     return back()->with('success', 'Cicilan terpilih berhasil dihapus');
@@ -212,6 +239,7 @@ public function importExcel(Request $request)
     while (($row = fgetcsv($file)) !== false)
     {
         Debt::create([
+            'user_id' => auth()->id(),
             'title' => $row[0],
             'total_amount' => $row[1],
             'monthly_payment' => $row[2],

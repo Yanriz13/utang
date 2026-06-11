@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Debt extends Model
 {
     protected $fillable = [
+        'user_id',
         'title',
         'total_amount',
         'total_month',
@@ -19,6 +20,11 @@ class Debt extends Model
     public function payments()
     {
         return $this->hasMany(DebtPayment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function totalPaid()

@@ -1,0 +1,54 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="max-w-md mx-auto px-4 py-8">
+    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
+        <h1 class="text-xl font-semibold text-slate-800">Register</h1>
+        <p class="text-sm text-slate-500 mt-1">Buat akun baru untuk mulai mencatat utang Anda sendiri.</p>
+
+        @if($errors->any())
+            <div class="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        <form action="{{ route('register.store') }}" method="POST" class="mt-5 space-y-4">
+            @csrf
+
+            <div>
+                <label for="name" class="block text-sm font-medium text-slate-700 mb-1">Nama</label>
+                <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                    class="w-full border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required
+                    class="w-full border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                <input type="password" name="password" id="password" required
+                    class="w-full border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" required
+                    class="w-full border border-slate-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition">
+                Daftar
+            </button>
+        </form>
+
+        <p class="text-sm text-slate-600 mt-4 text-center">
+            Sudah punya akun?
+            <a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-700 font-medium">Login</a>
+        </p>
+    </div>
+</div>
+@endsection
